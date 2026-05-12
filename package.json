@@ -1,0 +1,27 @@
+{
+  "name": "gymflow-fe-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "ios": "pnpm --filter mobile run ios",
+    "android": "pnpm --filter mobile run android",
+    "test": "pnpm -r test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.0.9",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "devDependencies": {
+    "prettier": "^3.8.3"
+  }
+}
