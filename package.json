@@ -4,15 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "mobile": "pnpm --filter mobile start",
+    "mobile:ios": "pnpm --filter mobile ios",
+    "mobile:android": "pnpm --filter mobile android",
     "web": "pnpm --filter web dev",
-    "build:web": "pnpm --filter web build",
-    "ios": "pnpm --filter mobile run ios",
-    "android": "pnpm --filter mobile run android",
-    "test": "pnpm -r test"
+    "test": "pnpm --filter @gymflow/shared test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=11"
+  },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",

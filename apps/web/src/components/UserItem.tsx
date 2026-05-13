@@ -26,7 +26,7 @@ export default function UserItem({ user }: Props) {
               {user.fullName}
           </p>
           <p className="text-sm text-slate-500">
-              {user.dateOfBirth || "-"}
+              {user.dateOfBirth || "No birthday"}
           </p>
         </div>
       
