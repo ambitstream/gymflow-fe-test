@@ -4,8 +4,8 @@ Small cross-platform user management app built as a monorepo with a React web ap
 
 ## Requirements
 
-- Node.js 22+ recommended. Vite and Expo/Metro dependencies require a modern Node version.
-- pnpm 11+
+- Node.js 22+. Vite and Expo/Metro dependencies require a modern Node version.
+- pnpm 11+. The repository declares `pnpm@11.0.9` in `package.json`.
 
 ## Getting Started
 
@@ -14,6 +14,24 @@ Clone the repository:
 ```bash
 git clone https://github.com/ambitstream/gymflow-fe-test.git
 cd gymflow-fe-test
+```
+
+Use the expected Node.js version:
+
+```bash
+nvm use
+```
+
+If Node 22 is not installed yet:
+
+```bash
+nvm install
+```
+
+Enable Corepack so the declared pnpm version can be used:
+
+```bash
+corepack enable
 ```
 
 Install dependencies from the repository root:
