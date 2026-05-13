@@ -12,9 +12,9 @@ export default function Layout({
     children
 }: LayoutProps) {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex items-center justify-between gap-4">
+    <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-28">
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200 bg-slate-50/95 px-4 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
               {title || "GymFlow"}
@@ -31,7 +31,9 @@ export default function Layout({
                 {isHomepage ? "Add User" : "Back"}
             </Link>
         </div>
+      </header>
 
+      <div className="mx-auto max-w-2xl">
         {children}
       </div>
     </main>
