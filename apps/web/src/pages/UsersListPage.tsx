@@ -25,7 +25,7 @@ export default function UsersPage() {
         ) : sortedUsers.length > 0 ? (
           <div className="divide-y divide-slate-100">
             {sortedUsers.map((user) => (             
-              <UserItem user={user} />
+              <UserItem key={user.id} user={user} />
             ))}
           </div>
         ) : (
