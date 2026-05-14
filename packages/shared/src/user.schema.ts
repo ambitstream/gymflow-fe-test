@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_ROLE_VALUES } from "./user.constants";
+import { USER_ROLE_VALUES } from "./user.constants.js";
 
 export const userRoleSchema = z.enum(USER_ROLE_VALUES);
 

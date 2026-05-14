@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { userFormSchema } from "./user.schema";
+import { userFormSchema } from "./user.schema.js";
 
 describe("userFormSchema", () => {
   it("accepts valid user form values", () => {
