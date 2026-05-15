@@ -1,6 +1,5 @@
 import { Router } from "express";
-import type { ZodError } from "zod";
-import { userFormSchema } from "@gymflow/shared";
+import { userFormSchema } from "../shared/sharedModule.js";
 import {
   createUser,
   deleteUser,
@@ -29,7 +28,11 @@ const parsePositiveIntegerQuery = (value: unknown) => {
   return numberValue;
 };
 
-const getValidationErrorResponse = (error: ZodError) => ({
+type ValidationError = {
+  flatten: () => { fieldErrors: Record<string, string[]> };
+};
+
+const getValidationErrorResponse = (error: ValidationError) => ({
   message: "Validation failed",
   errors: error.flatten().fieldErrors,
 });

@@ -1,4 +1,4 @@
-import { USER_ROLE_VALUES } from "./user.constants.js";
+import { USER_ROLE_VALUES } from "./user.constants";
 
 export type UserRole = (typeof USER_ROLE_VALUES)[number];
 

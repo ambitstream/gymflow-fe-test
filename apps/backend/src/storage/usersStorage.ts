@@ -1,6 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { mockUsers, type User } from "@gymflow/shared";
+import type { User } from "@gymflow/shared";
+import { mockUsers } from "../shared/sharedModule.js";
 
 const dataDirectoryPath = path.resolve(process.cwd(), "data");
 const usersFilePath = path.join(dataDirectoryPath, "users.json");

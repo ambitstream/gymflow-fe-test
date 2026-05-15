@@ -1,4 +1,4 @@
-import { mockUsers } from "@gymflow/shared";
+import { mockUsers } from "../shared/sharedModule.js";
 import { writeUsers } from "../storage/usersStorage.js";
 
 await writeUsers(mockUsers);

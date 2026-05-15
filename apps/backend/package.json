@@ -12,8 +12,7 @@
   "dependencies": {
     "express": "^5.1.0",
     "cors": "^2.8.5",
-    "@gymflow/shared": "workspace:*",
-    "zod": "^4.4.3"
+    "@gymflow/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
