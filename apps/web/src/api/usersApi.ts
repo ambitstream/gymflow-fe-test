@@ -41,8 +41,8 @@ const request = async <ResponseData>(
   return response.json() as Promise<ResponseData>;
 };
 
-export const getUsers = async () => {
-  return request<UsersResponse>("/users?limit=50");
+export const getUsers = async (page: number = 1, limit: number = 20) => {
+  return request<UsersResponse>(`/users?page=${page}&limit=${limit}`);
 };
 
 export const getUserById = async (id: string) => {
