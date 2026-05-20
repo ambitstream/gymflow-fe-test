@@ -1,52 +1,115 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { mockUsers, type User, type UserFormValues } from "@gymflow/shared";
-
-const USERS_STORAGE_KEY = "gymflow_users";
+import type { User, UserFormValues, Pagination } from "@gymflow/shared";
+import {
+  createUser as createUserRequest,
+  deleteUser,
+  getUserById,
+  getUsers,
+  updateUser as updateUserRequest,
+} from "../api/usersApi";
 
 type UserStore = {
   users: User[];
+  selectedUser: User | null;
   isLoaded: boolean;
   isLoading: boolean;
-
-  loadUsers: () => Promise<void>;
+  isLoadingMore: boolean;
+  error: string | null;
+  pagination: Pagination;
+  loadUsers: (page?: number, limit?: number) => Promise<void>;
+  loadNextUsersPage: () => Promise<void>;
+  refreshUsers: () => Promise<void>;
+  loadUser: (id: string) => Promise<void>;
   createUser: (values: UserFormValues) => Promise<void>;
   updateUser: (id: string, values: UserFormValues) => Promise<void>;
   removeUser: (id: string) => Promise<void>;
-  resetUsers: () => Promise<void>;
 };
 
-const saveUsers = async (users: User[]) => {
-  await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-};
+const DEFAULT_USERS_LIMIT = 10;
 
 export const useUserStore = create<UserStore>((set, get) => ({
   users: [],
+  selectedUser: null,
   isLoaded: false,
   isLoading: false,
+  isLoadingMore: false,
+  error: null,
+  pagination: {
+    page: 1,
+    limit: DEFAULT_USERS_LIMIT,
+    total: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  },
 
-  loadUsers: async () => {
+  loadUsers: async (page = 1, limit = DEFAULT_USERS_LIMIT) => {
+    const shouldAppendUsers = page > 1;
+
     try {
-      set({ isLoading: true });
-
-      // Intentional delay to simulate loading state
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const storedUsers = await AsyncStorage.getItem(USERS_STORAGE_KEY);
-
-      if (!storedUsers) {
-        await saveUsers(mockUsers);
-        set({ users: mockUsers, isLoaded: true });
-        return;
-      }
-
       set({
-        users: JSON.parse(storedUsers),
-        isLoaded: true,
+        [shouldAppendUsers ? "isLoadingMore" : "isLoading"]: true,
+        error: null,
       });
+      const response = await getUsers(page, limit);
+
+      set((state) => ({
+        users: shouldAppendUsers
+          ? [...state.users, ...response.data]
+          : response.data,
+        pagination: response.pagination,
+        isLoaded: true,
+      }));
     } catch (error) {
       console.error("Failed to load users", error);
-      set({ users: mockUsers, isLoaded: true });
+
+      set({
+        error: "Failed to load users",
+        isLoaded: true,
+      });
+    } finally {
+      set({
+        isLoading: false,
+        isLoadingMore: false,
+      });
+    }
+  },
+
+  loadNextUsersPage: async () => {
+    const { isLoading, isLoadingMore, pagination, loadUsers } = get();
+
+    if (isLoading || isLoadingMore || !pagination.hasNextPage) {
+      return;
+    }
+
+    await loadUsers(pagination.page + 1, pagination.limit);
+  },
+
+  refreshUsers: async () => {
+    const { isLoading, isLoadingMore, users, pagination, loadUsers } = get();
+
+    if (isLoading || isLoadingMore) {
+      return;
+    }
+
+    const loadedUsersLimit = Math.max(users.length, pagination.limit);
+
+    await loadUsers(1, loadedUsersLimit);
+  },
+
+  loadUser: async (id) => {
+    try {
+      set({ isLoading: true, error: null });
+      const user = await getUserById(id);
+
+      set({ selectedUser: user });
+    } catch (error) {
+      console.error("Failed to load user", error);
+
+      set({
+        selectedUser: null,
+        error: "Failed to load user",
+      });
     } finally {
       set({ isLoading: false });
     }
@@ -54,20 +117,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   createUser: async (values) => {
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
+      const newUser = await createUserRequest(values);
 
-      const newUser: User = {
-        id: String(Date.now()),
-        ...values,
-      };
-
-      const users = [newUser, ...get().users];
-
-      set({ users });
-
-      await saveUsers(users);
+      set({ users: [newUser, ...get().users] });
     } catch (error) {
       console.error("Failed to create user", error);
+      set({ error: "Failed to create user" });
     } finally {
       set({ isLoading: false });
     }
@@ -75,16 +131,20 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   updateUser: async (id, values) => {
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
+      const updatedUser = await updateUserRequest(id, values);
 
       const users = get().users.map((user) =>
-        user.id === id ? { ...user, ...values } : user
+        user.id === id ? updatedUser : user
       );
 
-      set({ users });
-      await saveUsers(users);
+      set({
+        users,
+        selectedUser: updatedUser,
+      });
     } catch (error) {
       console.error("Failed to update user", error);
+      set({ error: "Failed to update user" });
     } finally {
       set({ isLoading: false });
     }
@@ -92,20 +152,20 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   removeUser: async (id) => {
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
+      await deleteUser(id);
 
       const users = get().users.filter((user) => user.id !== id);
 
-      set({ users });
-      await saveUsers(users);
+      set({
+        users,
+        selectedUser: null,
+      });
     } catch (error) {
       console.error("Failed to remove user", error);
+      set({ error: "Failed to remove user" });
     } finally {
       set({ isLoading: false });
     }
-  },
-
-  resetUsers: async () => {
-    await AsyncStorage.removeItem(USERS_STORAGE_KEY);
   }
 }));

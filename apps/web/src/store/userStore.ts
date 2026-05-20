@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { User, UserFormValues } from "@gymflow/shared";
+import type { User, UserFormValues, Pagination } from "@gymflow/shared";
 import {
   createUser as createUserRequest,
   deleteUser,
@@ -15,15 +15,7 @@ type UserStore = {
   isLoading: boolean;
   isLoadingMore: boolean;
   error: string | null;
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-
+  pagination: Pagination;
   loadUsers: (page?: number, limit?: number) => Promise<void>;
   loadNextUsersPage: () => Promise<void>;
   loadUser: (id: string) => Promise<void>;
