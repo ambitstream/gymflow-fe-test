@@ -8,6 +8,8 @@
     "mobile:ios": "pnpm --filter mobile ios",
     "mobile:android": "pnpm --filter mobile android",
     "web": "pnpm --filter web dev",
+    "backend": "pnpm --filter backend dev",
+    "backend:seed": "pnpm --filter backend seed",
     "test": "pnpm --filter @gymflow/shared test"
   },
   "keywords": [],

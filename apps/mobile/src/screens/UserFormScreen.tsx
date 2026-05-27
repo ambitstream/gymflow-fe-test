@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,13 +23,19 @@ export default function UsersFormScreen({ route, navigation }: Props) {
   const userId = route.params.userId;
   const isCreateMode = userId === "new";
 
+  const users = useUserStore((state) => state.users);
+  const selectedUser = useUserStore((state) => state.selectedUser);
+  const loadUser = useUserStore((state) => state.loadUser);
   const createUser = useUserStore((state) => state.createUser);
   const updateUser = useUserStore((state) => state.updateUser);
   const removeUser = useUserStore((state) => state.removeUser);
 
-  const user = useUserStore((state) =>
-    !isCreateMode ? state.users.find((item) => item.id === userId) : undefined
-  );
+  const selectedUserForRoute =
+    selectedUser?.id === userId ? selectedUser : null;
+
+  const user = isCreateMode
+    ? null
+    : users.find((item) => item.id === userId) ?? selectedUserForRoute;
 
   const defaultValues: UserFormValues = {
     fullName: user?.fullName ?? "",
@@ -37,11 +43,26 @@ export default function UsersFormScreen({ route, navigation }: Props) {
     dateOfBirth: user?.dateOfBirth ?? "",
   };
 
-  const { control, handleSubmit, formState: { isValid } } = useForm<UserFormValues>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isValid },
+  } = useForm<UserFormValues>({
     defaultValues,
     resolver: zodResolver(userFormSchema),
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (!isCreateMode && userId && !user) {
+      void loadUser(userId);
+    }
+  }, [isCreateMode, loadUser, user, userId]);
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [reset, user?.id, user?.fullName, user?.role, user?.dateOfBirth]);
 
   const onSubmit = async (values: UserFormValues) => {
     if (isCreateMode) {

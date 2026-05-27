@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { fieldAnimation } from "../helpers/animation";
 import { useForm } from "react-hook-form";
@@ -21,12 +22,17 @@ export default function UserFormPage() {
   const isCreateMode = userId === "new";
 
   const users = useUserStore((state) => state.users);
+  const selectedUser = useUserStore((state) => state.selectedUser);
+  const isLoading = useUserStore((state) => state.isLoading);
 
+  const loadUser = useUserStore((state) => state.loadUser);
   const createUser = useUserStore((state) => state.createUser);
   const updateUser = useUserStore((state) => state.updateUser);
   const removeUser = useUserStore((state) => state.removeUser);
 
-  const user = users.find((item) => item.id === userId);
+  const user = isCreateMode
+    ? null
+    : users.find((item) => item.id === userId) ?? selectedUser;
 
   const defaultValues: UserFormValues = {
     fullName: user?.fullName ?? "",
@@ -37,12 +43,23 @@ export default function UserFormPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isValid },
   } = useForm<UserFormValues>({
     defaultValues,
     resolver: zodResolver(userFormSchema),
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (!isCreateMode && userId) {
+      void loadUser(userId);
+    }
+  }, [isCreateMode, loadUser, userId]);
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [reset, user?.id, user?.fullName, user?.role, user?.dateOfBirth]);
 
   const onSubmit = async (values: UserFormValues) => {
     if (isCreateMode) {
@@ -107,7 +124,7 @@ export default function UserFormPage() {
           <Button
             title={isCreateMode ? "Create user" : "Update user"}
             type="submit"
-            disabled={!isValid}
+            disabled={!isValid || isLoading}
           />
 
           {!isCreateMode && (
